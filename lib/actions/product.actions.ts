@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use server';
 import { prisma } from '@/db/prisma';
 import { convertToPlainObject, formatError } from '../utils';
@@ -122,4 +121,25 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema>) {
   } catch (error) {
     return { success: false, message: formatError(error) };
   }
+}
+
+// Get all categories
+export async function getAllCategories() {
+  const data = await prisma.product.groupBy({
+    by: ['category'],
+    _count: true,
+  });
+
+  return data;
+}
+
+// Get featured products
+export async function getFeaturedProducts() {
+  const data = await prisma.product.findMany({
+    where: { isFeatured: true },
+    orderBy: { createdAt: 'desc' },
+    take: 4,
+  });
+
+  return convertToPlainObject(data);
 }
